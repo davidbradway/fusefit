@@ -2,6 +2,12 @@
 """
 Created on Fri Feb 27 21:22:08 2015
 
+Docs used:
+- http://lxml.de/tutorial.html#namespaces
+- http://stackoverflow.com/questions/1786476/parsing-xml-in-python-using-elementtree-example
+- https://docs.python.org/3/library/xml.etree.elementtree.html
+
+
 @author: David
 """
 filename = r'phone\activity_704970907.tcx'
