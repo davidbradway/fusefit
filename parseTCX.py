@@ -1,49 +1,58 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Feb 27 21:22:08 2015
-
 Docs used:
 - http://lxml.de/tutorial.html#namespaces
 - http://stackoverflow.com/questions/1786476/parsing-xml-in-python-using-elementtree-example
 - https://docs.python.org/3/library/xml.etree.elementtree.html
 
-
 @author: David
 """
-filename = r'phone\activity_704970907.tcx'
-#filename = r'fused\uniqueStructure.tcx'
 
 try:
-  from lxml import etree
-  print("running with lxml.etree")
+    from lxml import etree
+    print("running with lxml.etree")
 except ImportError:
-  try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-    print("running with cElementTree on Python 2.5+")
-  except ImportError:
     try:
-      # Python 2.5
-      import xml.etree.ElementTree as etree
-      print("running with ElementTree on Python 2.5+")
+        # Python 2.5
+        import xml.etree.cElementTree as etree
+        print("running with cElementTree on Python 2.5+")
     except ImportError:
-      try:
-        # normal cElementTree install
-        import cElementTree as etree
-        print("running with cElementTree")
-      except ImportError:
         try:
-          # normal ElementTree install
-          import elementtree.ElementTree as etree
-          print("running with ElementTree")
+            # Python 2.5
+            import xml.etree.ElementTree as etree
+            print("running with ElementTree on Python 2.5+")
         except ImportError:
-          print("Failed to import ElementTree from any known place")
-
-tree = etree.parse(filename)
-root = tree.getroot()
+            try:
+                # normal cElementTree install
+                import cElementTree as etree
+                print("running with cElementTree")
+            except ImportError:
+                try:
+                    # normal ElementTree install
+                    import elementtree.ElementTree as etree
+                    print("running with ElementTree")
+                except ImportError:
+                    print("Failed to import ElementTree from any known place")
 
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 XHTML = "{%s}" % XHTML_NAMESPACE
+
+phonefilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\phone\activity_704970907.tcx'
+hrmonfilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\vivofit\activity_704996112.tcx'
+outfilename = r'fused\uniqueStructure.tcx'
+
+# python 2
+#import Tkinter as tk
+# python 3
+import tkinter as tk
+from tkinter import filedialog
+root = tk.Tk()
+root.withdraw()
+filename = filedialog.askopenfilename()
+
+
+tree = etree.parse(phonefilename)
+root = tree.getroot()
 
 """
 find_trainingCenterDatabase = etree.ETXPath("//{%s}TrainingCenterDatabase" % XHTML_NAMESPACE)
@@ -65,14 +74,18 @@ for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
         print child.tag
     
 # Dictionary of children and their parents
-#parent_map = dict((c, p) for p in tree.getiterator() for c in p)
+"""
+parent_map = dict((c, p) for p in tree.getiterator() for c in p)
+"""
 
-#for rank in root.iter('rank'):
-#    new_rank = int(rank.text) + 1
-#    rank.text = str(new_rank)
-#   rank.set('updated', 'yes')
-#
-#tree.write('output.xml')
+"""
+for rank in root.iter('rank'):
+    new_rank = int(rank.text) + 1
+    rank.text = str(new_rank)
+    rank.set('updated', 'yes')
+
+tree.write('output.xml')
+"""
 
 # in-place prettyprint formatter
 def indent(elem, level=0):
