@@ -34,22 +34,30 @@ except ImportError:
                 except ImportError:
                     print("Failed to import ElementTree from any known place")
 
+try:
+    # python 2
+    import Tkinter as tk
+    print("running Tkinter")
+except ImportError:
+    try:
+        # python 3
+        import tkinter as tk
+        from tkinter import filedialog
+        print("running tkinter")
+    except ImportError:
+        print("Failed to import tkinter")
+
+
+root = tk.Tk()
+root.withdraw()
+filename = filedialog.askopenfilename()
+
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 XHTML = "{%s}" % XHTML_NAMESPACE
 
 phonefilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\phone\activity_704970907.tcx'
 hrmonfilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\vivofit\activity_704996112.tcx'
 outfilename = r'fused\uniqueStructure.tcx'
-
-# python 2
-#import Tkinter as tk
-# python 3
-import tkinter as tk
-from tkinter import filedialog
-root = tk.Tk()
-root.withdraw()
-filename = filedialog.askopenfilename()
-
 
 tree = etree.parse(phonefilename)
 root = tree.getroot()
