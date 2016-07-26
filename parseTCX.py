@@ -55,8 +55,8 @@ filename = filedialog.askopenfilename()
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 XHTML = "{%s}" % XHTML_NAMESPACE
 
-phonefilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\phone\activity_704970907.tcx'
-hrmonfilename = r'C:\Users\dpb6\Documents\GitHub\fusefit\vivofit\activity_704996112.tcx'
+phonefilename = r'C:\Users\David\Downloads\fusefit\phone\activity_704970907.tcx'
+hrmonfilename = r'C:\Users\David\Downloads\fusefit\vivofit\activity_704996112.tcx'
 outfilename = r'fused\uniqueStructure.tcx'
 
 tree = etree.parse(phonefilename)
@@ -79,8 +79,8 @@ Trackpoint = find_trackpoint(root)
 
 for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
     for child in Trackpoint:
-        print child.tag
-    
+        print(child.tag)
+
 # Dictionary of children and their parents
 """
 parent_map = dict((c, p) for p in tree.getiterator() for c in p)
