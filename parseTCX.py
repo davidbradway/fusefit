@@ -4,12 +4,18 @@ Docs used:
 - http://lxml.de/tutorial.html#namespaces
 - http://stackoverflow.com/questions/1786476/parsing-xml-in-python-using-elementtree-example
 - https://docs.python.org/3/library/xml.etree.elementtree.html
+- http://pandas.pydata.org/pandas-docs/version/0.15.0/generated/pandas.Series.interpolate.html?highlight=interpolate#pandas.Series.interpolate
+- http://stackoverflow.com/questions/30530001/python-pandas-time-series-interpolation-and-regularization
+- http://pandas.pydata.org/pandas-docs/stable/missing_data.html
 
 @author: David
 """
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import pandas as pd
+
 
 try:
     from lxml import etree
@@ -58,9 +64,11 @@ filename = filedialog.askopenfilename()
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 XHTML = "{%s}" % XHTML_NAMESPACE
 
-phonefilename = r'C:\Users\David\Downloads\fusefit\phone\activity_704970907.tcx'
-hrmonfilename = r'C:\Users\David\Downloads\fusefit\vivofit\activity_704996112.tcx'
-outfilename = r'fused\uniqueStructure.tcx'
+startdir = os.getcwd()
+
+phonefilename = os.path.join('phone', 'activity_704970907.tcx')
+hrmonfilename = os.path.join('vivofit', 'activity_704996112.tcx')
+outfilename = os.path.join('fused', 'uniqueStructure.tcx')
 
 tree = etree.parse(phonefilename)
 root = tree.getroot()
@@ -94,27 +102,23 @@ for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
 timeshr = []
 hr = []
 hrdict = {}
-for Trackpoint in roothr.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
-    for child in Trackpoint:
-        #print(child.tag)
-        if 'Time' in child.tag:
-            #print(child.text)
-            timeshr.append(datetime.strptime(child.text, '%Y-%m-%dT%H:%M:%S.000Z'))
-        if 'HeartRateBpm' in child.tag:
-            Values = child.getchildren()
-            for value in Values:
-                #print(value.text)
-                hr.append(int(value.text))
-                hrdict[timeshr[-1]] = hr[-1]
-print(hrdict)
+for Trackpoint in roothr.findall(".//{%s}Trackpoint" % XHTML_NAMESPACE):
+    time = Trackpoint.find(".//{%s}Time" % XHTML_NAMESPACE).text
+    timeshr.append(datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z'))
+    heartRateBpm = Trackpoint.find(".//{%s}HeartRateBpm" % XHTML_NAMESPACE)
+    if heartRateBpm is not None:
+        value = heartRateBpm.find(".//{%s}Value" % XHTML_NAMESPACE).text
+        hr.append(int(value))
+        hrdict[timeshr[-1]] = hr[-1]
+
+hrSeries = pd.Series(hrdict)
+hrSeries.plot()
+
+#Series.interpolate(method='linear', axis=0, limit=None, inplace=False, downcast=None, **kwargs)
 
 print(len(timeshr))
 print(len(hrdict))
 
-print(times[23:28])
+times[23:28]
 
-print(timeshr[:5])
-
-#plt.plot(range(len(hrdict)), list(hrdict.values()))
-#plt.xticks(range(len(hrdict)),list(hrdict.keys()))
-#plt.show()
+timeshr[:5]
