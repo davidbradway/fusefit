@@ -7,6 +7,9 @@ Docs used:
 
 @author: David
 """
+from datetime import datetime
+import matplotlib.pyplot as plt
+import numpy as np
 
 try:
     from lxml import etree
@@ -62,6 +65,9 @@ outfilename = r'fused\uniqueStructure.tcx'
 tree = etree.parse(phonefilename)
 root = tree.getroot()
 
+treehr = etree.parse(hrmonfilename)
+roothr = treehr.getroot()
+
 """
 find_trainingCenterDatabase = etree.ETXPath("//{%s}TrainingCenterDatabase" % XHTML_NAMESPACE)
 TrainingCenterDatabase = find_trainingCenterDatabase(root)
@@ -77,36 +83,38 @@ find_trackpoint = etree.ETXPath("//{%s}Trackpoint" % XHTML_NAMESPACE)
 Trackpoint = find_trackpoint(root)
 """
 
+times = []
 for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
     for child in Trackpoint:
-        print(child.tag)
+        #print(child.tag, child.attrib)
+        if 'Time' in child.tag:
+            print(child.text)
+            times.append(datetime.strptime(child.text, '%Y-%m-%dT%H:%M:%S.000Z'))
 
-# Dictionary of children and their parents
-"""
-parent_map = dict((c, p) for p in tree.getiterator() for c in p)
-"""
+timeshr = []
+hr = []
+hrdict = {}
+for Trackpoint in roothr.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
+    for child in Trackpoint:
+        #print(child.tag)
+        if 'Time' in child.tag:
+            #print(child.text)
+            timeshr.append(datetime.strptime(child.text, '%Y-%m-%dT%H:%M:%S.000Z'))
+        if 'HeartRateBpm' in child.tag:
+            Values = child.getchildren()
+            for value in Values:
+                #print(value.text)
+                hr.append(int(value.text))
+                hrdict[timeshr[-1]] = hr[-1]
+print(hrdict)
 
-"""
-for rank in root.iter('rank'):
-    new_rank = int(rank.text) + 1
-    rank.text = str(new_rank)
-    rank.set('updated', 'yes')
+print(len(timeshr))
+print(len(hrdict))
 
-tree.write('output.xml')
-"""
+print(times[23:28])
 
-# in-place prettyprint formatter
-def indent(elem, level=0):
-    i = "\n" + level*"  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            indent(elem, level+1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+print(timeshr[:5])
+
+#plt.plot(range(len(hrdict)), list(hrdict.values()))
+#plt.xticks(range(len(hrdict)),list(hrdict.keys()))
+#plt.show()
