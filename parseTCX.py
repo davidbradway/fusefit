@@ -91,34 +91,28 @@ find_trackpoint = etree.ETXPath("//{%s}Trackpoint" % XHTML_NAMESPACE)
 Trackpoint = find_trackpoint(root)
 """
 
-times = []
+nohrdict = {}
 for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
-    for child in Trackpoint:
-        #print(child.tag, child.attrib)
-        if 'Time' in child.tag:
-            print(child.text)
-            times.append(datetime.strptime(child.text, '%Y-%m-%dT%H:%M:%S.000Z'))
+    time = Trackpoint.find(".//{%s}Time" % XHTML_NAMESPACE).text
+    timedatetime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z')
+    nohrdict[timedatetime] = np.nan
 
-timeshr = []
-hr = []
+nohrSeries = pd.Series(nohrdict)
+#nohrSeries.plot()
+
 hrdict = {}
 for Trackpoint in roothr.findall(".//{%s}Trackpoint" % XHTML_NAMESPACE):
     time = Trackpoint.find(".//{%s}Time" % XHTML_NAMESPACE).text
-    timeshr.append(datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z'))
+    timedatetime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z')
     heartRateBpm = Trackpoint.find(".//{%s}HeartRateBpm" % XHTML_NAMESPACE)
     if heartRateBpm is not None:
         value = heartRateBpm.find(".//{%s}Value" % XHTML_NAMESPACE).text
-        hr.append(int(value))
-        hrdict[timeshr[-1]] = hr[-1]
+        hrdict[timedatetime] = int(value)
 
 hrSeries = pd.Series(hrdict)
-hrSeries.plot()
+#hrSeries.plot()
 
-#Series.interpolate(method='linear', axis=0, limit=None, inplace=False, downcast=None, **kwargs)
+result = pd.concat([nohrSeries,hrSeries], axis=0).sort_index()
+result = result.interpolate(method='time')
+result.plot()
 
-print(len(timeshr))
-print(len(hrdict))
-
-times[23:28]
-
-timeshr[:5]
