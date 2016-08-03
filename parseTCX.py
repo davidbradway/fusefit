@@ -63,6 +63,7 @@ filename = filedialog.askopenfilename()
 
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 XHTML = "{%s}" % XHTML_NAMESPACE
+#XHTML = '{{{}}}'.format(XHTML_NAMESPACE)  # 3.1+ only
 
 startdir = os.getcwd()
 
