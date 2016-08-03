@@ -21,49 +21,22 @@ try:
     from lxml import etree
     print("running with lxml.etree")
 except ImportError:
-    try:
-        # Python 2.5
-        import xml.etree.cElementTree as etree
-        print("running with cElementTree on Python 2.5+")
-    except ImportError:
-        try:
-            # Python 2.5
-            import xml.etree.ElementTree as etree
-            print("running with ElementTree on Python 2.5+")
-        except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree
-                print("running with cElementTree")
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree
-                    print("running with ElementTree")
-                except ImportError:
-                    print("Failed to import ElementTree from any known place")
+    print("failed to import etree, requires Python3")
 
 try:
-    # python 2
-    import Tkinter as tk
-    print("running Tkinter")
+    # python 3
+    import tkinter as tk
+    print("running tkinter")
 except ImportError:
-    try:
-        # python 3
-        import tkinter as tk
-        from tkinter import filedialog
-        print("running tkinter")
-    except ImportError:
-        print("Failed to import tkinter")
+    print("Failed to import tkinter, requires Python3")
 
 
 root = tk.Tk()
 root.withdraw()
-filename = filedialog.askopenfilename()
+filename = tk.filedialog.askopenfilename()
 
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
-XHTML = "{%s}" % XHTML_NAMESPACE
-#XHTML = '{{{}}}'.format(XHTML_NAMESPACE)  # 3.1+ only
+XHTML = '{{{}}}'.format(XHTML_NAMESPACE)  # 3.1+ only
 
 startdir = os.getcwd()
 
@@ -78,42 +51,70 @@ treehr = etree.parse(hrmonfilename)
 roothr = treehr.getroot()
 
 """
-find_trainingCenterDatabase = etree.ETXPath("//{%s}TrainingCenterDatabase" % XHTML_NAMESPACE)
+find_trainingCenterDatabase = etree.ETXPath("//{{{}}}TrainingCenterDatabase".format(XHTML_NAMESPACE)) # 3.1+ only
 TrainingCenterDatabase = find_trainingCenterDatabase(root)
-find_activities = etree.ETXPath("//{%s}Activities" % XHTML_NAMESPACE)
+find_activities = etree.ETXPath("//{{{}}}Activities".format(XHTML_NAMESPACE)) # 3.1+ only
 Activities = find_activities(root)
-find_activity = etree.ETXPath("//{%s}Activity" % XHTML_NAMESPACE)
+find_activity = etree.ETXPath("//{{{}}}Activity".format(XHTML_NAMESPACE)) # 3.1+ only
 Activity = find_activity(root)
-find_lap = etree.ETXPath("//{%s}Lap" % XHTML_NAMESPACE)
+find_lap = etree.ETXPath("//{{{}}}Lap".format(XHTML_NAMESPACE)) # 3.1+ only
 Lap = find_lap(root)
-find_track = etree.ETXPath("//{%s}Track" % XHTML_NAMESPACE)
+find_track = etree.ETXPath("//{{{}}}Track".format(XHTML_NAMESPACE)) # 3.1+ only
 Track = find_track(root)
-find_trackpoint = etree.ETXPath("//{%s}Trackpoint" % XHTML_NAMESPACE)
+find_trackpoint = etree.ETXPath("//{{{}}}Trackpoint".format(XHTML_NAMESPACE)) # 3.1+ only
 Trackpoint = find_trackpoint(root)
 """
 
+# Initialize Time Series 
+averageHeartRateBpm_value = []
+maximumHeartRateBpm_value = []
+for Lap in root.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
+    averageHeartRateBpm = Lap.find(".//{{{}}}AverageHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
+    if averageHeartRateBpm is not None:
+        value = averageHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+        averageHeartRateBpm_value.append(value.text)
+
+    maximumHeartRateBpm = Lap.find(".//{{{}}}MaximumHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
+    if maximumHeartRateBpm is not None:
+        value = maximumHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+        maximumHeartRateBpm_value.append(value.text)
+
+# Initialize Time Series 
 nohrdict = {}
-for Trackpoint in root.iterfind(".//{%s}Trackpoint" % XHTML_NAMESPACE):
-    time = Trackpoint.find(".//{%s}Time" % XHTML_NAMESPACE).text
-    timedatetime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z')
+for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
+    time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
+    timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
     nohrdict[timedatetime] = np.nan
 
-nohrSeries = pd.Series(nohrdict)
-#nohrSeries.plot()
+# Make a Pandas Series from the Dict
+hrSeries = pd.Series(nohrdict)
 
-hrdict = {}
-for Trackpoint in roothr.findall(".//{%s}Trackpoint" % XHTML_NAMESPACE):
-    time = Trackpoint.find(".//{%s}Time" % XHTML_NAMESPACE).text
-    timedatetime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.000Z')
-    heartRateBpm = Trackpoint.find(".//{%s}HeartRateBpm" % XHTML_NAMESPACE)
+# Update and add HR timepoints
+for Trackpoint in roothr.findall(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
+    time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
+    timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
+    heartRateBpm = Trackpoint.find(".//{{{}}}HeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
     if heartRateBpm is not None:
-        value = heartRateBpm.find(".//{%s}Value" % XHTML_NAMESPACE).text
-        hrdict[timedatetime] = int(value)
+        value = heartRateBpm.find(".//{{{}}}Value".format(XHTML_NAMESPACE))
+        hrSeries[timedatetime] = int(value.text)
 
-hrSeries = pd.Series(hrdict)
-#hrSeries.plot()
+hrSeries.sort_index(inplace=True)
+hrSeries = hrSeries.interpolate(method='time')
+hrSeries.plot()
 
-result = pd.concat([nohrSeries,hrSeries], axis=0).sort_index()
-result = result.interpolate(method='time')
-result.plot()
 
+"""
+nohrdict = {}
+for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
+    time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
+    timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
+    nohrdict[timedatetime] = np.nan
+    heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
+    value = etree.SubElement(heartRateBpm,'Value')
+    value.text = str(100)
+
+etree.dump(root)
+
+tree.write(outfilename)
+
+"""
