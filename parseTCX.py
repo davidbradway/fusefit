@@ -11,11 +11,11 @@ Docs used:
 @author: David
 """
 from datetime import datetime
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
-
+import math
 
 try:
     from lxml import etree
@@ -23,26 +23,25 @@ try:
 except ImportError:
     print("failed to import etree, requires Python3")
 
-try:
-    # python 3
-    import tkinter as tk
-    print("running tkinter")
-except ImportError:
-    print("Failed to import tkinter, requires Python3")
-
-
-root = tk.Tk()
-root.withdraw()
-filename = tk.filedialog.askopenfilename()
+#try:
+#    # python 3
+#    import tkinter as tk
+#    print("running tkinter")
+#except ImportError:
+#    print("Failed to import tkinter, requires Python3")
+#
+#
+#root = tk.Tk()
+#root.withdraw()
+#filename = tk.filedialog.askopenfilename()
 
 XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
-XHTML = '{{{}}}'.format(XHTML_NAMESPACE)  # 3.1+ only
 
-startdir = os.getcwd()
+#startdir = os.getcwd()
 
 phonefilename = os.path.join('phone', 'activity_704970907.tcx')
 hrmonfilename = os.path.join('vivofit', 'activity_704996112.tcx')
-outfilename = os.path.join('fused', 'uniqueStructure.tcx')
+outfilename = os.path.join('fused', 'fused_hr.tcx')
 
 tree = etree.parse(phonefilename)
 root = tree.getroot()
@@ -65,26 +64,30 @@ find_trackpoint = etree.ETXPath("//{{{}}}Trackpoint".format(XHTML_NAMESPACE)) # 
 Trackpoint = find_trackpoint(root)
 """
 
-# Initialize Time Series 
+# Find HRs by lap
 averageHeartRateBpm_value = []
 maximumHeartRateBpm_value = []
-for Lap in root.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
+for Lap in roothr.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
+    print(Lap)    
     averageHeartRateBpm = Lap.find(".//{{{}}}AverageHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
     if averageHeartRateBpm is not None:
-        value = averageHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+        value = averageHeartRateBpm.find(".//{{{}}}Value".format(XHTML_NAMESPACE))
         averageHeartRateBpm_value.append(value.text)
-
+    else:
+        averageHeartRateBpm_value.append(np.NaN)
     maximumHeartRateBpm = Lap.find(".//{{{}}}MaximumHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
     if maximumHeartRateBpm is not None:
-        value = maximumHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+        value = maximumHeartRateBpm.find(".//{{{}}}Value".format(XHTML_NAMESPACE))
         maximumHeartRateBpm_value.append(value.text)
+    else:
+        maximumHeartRateBpm_value.append(np.NaN)
 
-# Initialize Time Series 
+# Initialize Time Series
 nohrdict = {}
 for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
     time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
     timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
-    nohrdict[timedatetime] = np.nan
+    nohrdict[timedatetime] = np.NaN
 
 # Make a Pandas Series from the Dict
 hrSeries = pd.Series(nohrdict)
@@ -99,22 +102,21 @@ for Trackpoint in roothr.findall(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)):
         hrSeries[timedatetime] = int(value.text)
 
 hrSeries.sort_index(inplace=True)
-hrSeries = hrSeries.interpolate(method='time')
+#hrSeries = hrSeries.interpolate(method='time')
+hrSeries = hrSeries.interpolate(method='values')
 hrSeries.plot()
 
-
-"""
-nohrdict = {}
+# Go add the HR data to the file that lacks it.
 for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
     time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
     timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
-    nohrdict[timedatetime] = np.nan
-    heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
-    value = etree.SubElement(heartRateBpm,'Value')
-    value.text = str(100)
+    #print(timedatetime)
+    temp = hrSeries.loc[timedatetime]
+    if math.isnan(temp) == False:
+        heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
+        value = etree.SubElement(heartRateBpm,'Value')
+        value.text = str(temp)
 
 etree.dump(root)
-
 tree.write(outfilename)
 
-"""
