@@ -16,11 +16,17 @@ __author__  = "David Bradway (dpb6 @ duke)"
 __version__ = "0.0pre0"
 __license__ = "GNU GPL 3.0 or later"
 
-import os, sys
+import os, sys, math
 from datetime import datetime
 #import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+try:
+    from lxml import etree
+    print("running with lxml.etree")
+except ImportError:
+    print("failed to import etree, requires Python3")
 
 
 def parseLaps(root, XHTML_NAMESPACE):
@@ -62,18 +68,17 @@ def parseHRs(roothr, hrSeries, XHTML_NAMESPACE):
     return hrSeries
 
 
-def appendHRs(root, hrSeries, outfilename, XHTML_NAMESPACE):
-    nohrdict = {}
+def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE):
     for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
         time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
         timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
-        #
-        heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
-        value = etree.SubElement(heartRateBpm,'Value')
-        value.text = str(100)
+        temp = hrSeries.loc[timedatetime]
+        if math.isnan(temp) == False:
+            heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
+            value = etree.SubElement(heartRateBpm,'Value')
+            value.text = str(temp)
 
-    etree.dump(root)
-
+    #etree.dump(root)
     tree.write(outfilename)
 
 
@@ -82,12 +87,6 @@ def main():
     print(sys.platform)
     print(os.name)
     print(os.getcwd())
-
-    try:
-        from lxml import etree
-        print("running with lxml.etree")
-    except ImportError:
-        print("failed to import etree, requires Python3")
 
     try:
         # python 3
@@ -101,7 +100,6 @@ def main():
         print("Failed to import tkinter, requires Python3")
 
     XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
-    #XHTML = '{{{}}}'.format(XHTML_NAMESPACE)  # 3.1+ only
 
     startdir = os.getcwd()
 
@@ -146,6 +144,7 @@ def main():
     hrSeries = hrSeries.interpolate(method='time')
     hrSeries.plot()
 
-
+    appendHRs(tree, root, hrSeries, outfilename, XHTML_NAMESPACE)
+        
 if __name__ == "__main__": main()
 
