@@ -29,19 +29,19 @@ except ImportError:
     print("failed to import etree, requires Python3")
 
 
-def parseLaps(root, XHTML_NAMESPACE):
+def parseLaps(roothr, XHTML_NAMESPACE):
     # Initialize Time Series 
     averageHeartRateBpm_value = []
     maximumHeartRateBpm_value = []
-    for Lap in root.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
+    for Lap in roothr.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
         averageHeartRateBpm = Lap.find(".//{{{}}}AverageHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
         if averageHeartRateBpm is not None:
-            value = averageHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+            value = averageHeartRateBpm.find(".//{{{}}}Value".format(XHTML_NAMESPACE))
             averageHeartRateBpm_value.append(value.text)
 
         maximumHeartRateBpm = Lap.find(".//{{{}}}MaximumHeartRateBpm".format(XHTML_NAMESPACE)) # 3.1+ only
         if maximumHeartRateBpm is not None:
-            value = maximumHeartRateBpm.find(".//{{{}}Value".format(XHTML_NAMESPACE))
+            value = maximumHeartRateBpm.find(".//{{{}}}Value".format(XHTML_NAMESPACE))
             maximumHeartRateBpm_value.append(value.text)
     return {'averageHeartRateBpm_value':averageHeartRateBpm_value,'maximumHeartRateBpm_value':maximumHeartRateBpm_value}
 
@@ -91,7 +91,7 @@ def main():
     try:
         # python 3
         import tkinter as tk
-        from tkinter import filedialog
+        #from tkinter import filedialog
         print("running tkinter")
         root = tk.Tk()
         root.withdraw()
@@ -128,7 +128,7 @@ def main():
     Trackpoint = find_trackpoint(root)
     """
 
-    result = parseLaps(root, XHTML_NAMESPACE)
+    result = parseLaps(roothr, XHTML_NAMESPACE)
     averageHeartRateBpm_value = result['averageHeartRateBpm_value']
     maximumHeartRateBpm_value = result['maximumHeartRateBpm_value']
     # TODO: Need to use the Above values!
