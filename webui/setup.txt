@@ -1,0 +1,14 @@
+python -m venv flask
+
+flask\Scripts\pip install flask
+
+mkdir app
+mkdir app\static
+mkdir app\templates
+mkdir tmp
+
+# Run our app
+flask\Scripts\python run.py
+
+# Goto
+http://localhost:5000
