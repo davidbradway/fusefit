@@ -1,3 +1,10 @@
+flask/Include
+flask/Lib
+flask/Scripts
+flask/pip-selfcheck.json
+flask/pyvenv.cfg
+
+
 *.py[co]
 *.DS_*
 # Packages
