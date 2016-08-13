@@ -1,9 +1,8 @@
-flask/Include
-flask/Lib
-flask/Scripts
-flask/pip-selfcheck.json
-flask/pyvenv.cfg
-
+webui/flask/Include
+webui/flask/Lib
+webui/flask/Scripts
+webui/flask/pip-selfcheck.json
+webui/flask/pyvenv.cfg
 
 *.py[co]
 *.DS_*
