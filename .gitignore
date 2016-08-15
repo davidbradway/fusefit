@@ -5,6 +5,8 @@ webui/flask/Scripts
 webui/flask/pip-selfcheck.json
 webui/flask/pyvenv.cfg
 
+tmp/*.tcx
+
 *.py[co]
 *.DS_*
 # Packages
