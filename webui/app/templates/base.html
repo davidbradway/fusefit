@@ -75,6 +75,15 @@
 
     <section id="upload">
         <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }} </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            {% endwith %}
             <form action="upload" method="post" enctype="multipart/form-data">
                 <div class="row">
                     <h2 class="section-heading">Upload Files to Merge!</h2>
