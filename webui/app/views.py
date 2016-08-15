@@ -47,8 +47,8 @@ def upload():
         # Move the file form the temporal folder to
         # the upload folder we setup
         filewohr.save(os.path.join(app.config['UPLOAD_FOLDER'], filenamewohr))
-        # Redirect the user to the uploaded_file route, which
-        # will basicaly show on the browser the uploaded file
+
+        # Check if the file is one of the allowed types/extensions
         if filewhr and allowed_file(filewhr.filename):
             # Make the filename safe, remove unsupported chars
             filenamewhr = secure_filename(filewhr.filename)
@@ -58,15 +58,13 @@ def upload():
             # Redirect the user to the uploaded_file route, which
             # will basicaly show on the browser the uploaded file
         return redirect(url_for('uploaded_file',
-                                filenamewohr=filenamewohr,
-                                filenamewhr=filenamewhr))
+                                filenamewohr = filenamewohr,
+                                filenamewhr = filenamewhr))
 
-# This route is expecting a parameter containing the name
-# of a file. Then it will locate that file on the upload
-# directory and show it on the browser, so if the user uploads
-# an image, that image is going to be show after the upload
+# This route is expecting parameters containing the names
+# of the files.
 @app.route('/uploads/<filenamewohr>/<filenamewhr>')
 def uploaded_file(filenamewohr,filenamewhr):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filenamewohr,filenamewhr)
-    # return render_template('file.html',folder = app.config['UPLOAD_FOLDER'], file = filename)
+    return render_template('file.html',folder = app.config['UPLOAD_FOLDER'],
+                                filenamewohr = filenamewohr,
+                                filenamewhr = filenamewhr)
