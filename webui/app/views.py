@@ -14,57 +14,36 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 
-# This route will show a form to perform an AJAX request
-# jQuery is loaded to execute the request and update the
-# value of the operation
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET','POST'])
+@app.route('/index', methods=['GET','POST'])
 def index():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        filename = []
+        for upfile in ['filewohr','filewhr']:
+            if upfile not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            # Get the name of the uploaded file
+            file = request.files[upfile]
+            # if user does not select file, browser also
+            # submits a empty part without filename
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # Check if the file is one of the allowed types/extensions
+            if file and allowed_file(file.filename):
+                # Make the filename safe, remove unsupported chars
+                filename.append(secure_filename(file.filename))
+                # Move the file form the temporary folder to the upload folder
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename[-1]))
+            else:
+                flash('Not allowed file')
+                return redirect(request.url)
+        # Redirect the user to the file route
+        # return redirect(url_for('file', filewohr=filewohr, filewhr=filewhr))
+        return render_template('file.html', 
+            folder=app.config['UPLOAD_FOLDER'], 
+            filenamewohr=filename[0], 
+            filenamewhr=filename[1])
     return render_template('index.html')
-
-# Route that will process the file upload
-@app.route('/upload', methods=['POST'])
-def upload():
-    # check if the post request has the file part
-    if 'filewohr' not in request.files or 'filewhr' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    # Get the name of the uploaded file
-    filewohr = request.files['filewohr']
-    filewhr = request.files['filewhr']
-    # if user does not select file, browser also
-    # submit a empty part without filename
-    if filewohr.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if filewhr.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    # Check if the file is one of the allowed types/extensions
-    if filewohr and allowed_file(filewohr.filename):
-        # Make the filename safe, remove unsupported chars
-        filenamewohr = secure_filename(filewohr.filename)
-        # Move the file form the temporal folder to
-        # the upload folder we setup
-        filewohr.save(os.path.join(app.config['UPLOAD_FOLDER'], filenamewohr))
-
-        # Check if the file is one of the allowed types/extensions
-        if filewhr and allowed_file(filewhr.filename):
-            # Make the filename safe, remove unsupported chars
-            filenamewhr = secure_filename(filewhr.filename)
-            # Move the file form the temporal folder to
-            # the upload folder we setup
-            filewhr.save(os.path.join(app.config['UPLOAD_FOLDER'], filenamewhr))
-            # Redirect the user to the uploaded_file route, which
-            # will basicaly show on the browser the uploaded file
-        return redirect(url_for('uploaded_file',
-                                filenamewohr = filenamewohr,
-                                filenamewhr = filenamewhr))
-
-# This route is expecting parameters containing the names
-# of the files.
-@app.route('/uploads/<filenamewohr>/<filenamewhr>')
-def uploaded_file(filenamewohr,filenamewhr):
-    return render_template('file.html',folder = app.config['UPLOAD_FOLDER'],
-                                filenamewohr = filenamewohr,
-                                filenamewhr = filenamewhr)
