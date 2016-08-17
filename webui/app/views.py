@@ -45,5 +45,5 @@ def index():
             folder = app.config['UPLOAD_FOLDER'],
             filenamewohr = filename[0],
             filenamewhr = filename[1],
-            scroll = 'main')
+            scroll = 'results')
     return render_template('index.html')
