@@ -40,10 +40,10 @@ def index():
             else:
                 flash('Not allowed file')
                 return redirect(request.url)
-        # Redirect the user to the file route
-        # return redirect(url_for('file', filewohr=filewohr, filewhr=filewhr))
-        return render_template('file.html', 
-            folder=app.config['UPLOAD_FOLDER'], 
-            filenamewohr=filename[0], 
-            filenamewhr=filename[1])
+        # Render the file template
+        return render_template('file.html',
+            folder = app.config['UPLOAD_FOLDER'],
+            filenamewohr = filename[0],
+            filenamewhr = filename[1],
+            scroll = 'main')
     return render_template('index.html')
