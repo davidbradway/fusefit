@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if scroll %}
-    <script>
-        document.getElementById('{{ scroll }}').scrollIntoView();
-    </script>
-    {% endif %}
-    <h2 class="section-heading">Results!</h2>
-    <hr class="primary">
-    <!-- <p>{{ folder }}</p> -->
-    <p>File needing heart rate: {{ filenamewohr }}</p>
-    <p>File having heart rate: {{ filenamewhr }}</p>
-    <!-- <p><a href="{{ filenamewohr }}">{{ filenamewohr }}</a></p> -->
-    <!-- <p><a href="{{ filenamewhr  }}">{{ filenamewhr  }}</a></p> -->
+                    {% if scroll %}
+                    {% endif %}
+                    <h2 class="section-heading" id="results">Results!</h2>
+                    <hr class="primary">
+                    <!-- <p>{{ folder }}</p> -->
+                    <p>File needing heart rate: {{ filenamewohr }}</p>
+                    <p>File having heart rate: {{ filenamewhr }}</p>
+                    <!-- <p><a href="{{ filenamewohr }}">{{ filenamewohr }}</a></p> -->
+                    <!-- <p><a href="{{ filenamewhr  }}">{{ filenamewhr  }}</a></p> -->
+                    <script>
+                        document.getElementById('{{ scroll }}').scrollIntoView(true);
+                    </script>
 {% endblock %}
