@@ -103,9 +103,9 @@ def main():
 
     startdir = os.getcwd()
 
-    phonefilename = os.path.join(startdir,'phone', 'activity_704970907.tcx')
-    hrmonfilename = os.path.join(startdir,'vivofit', 'activity_704996112.tcx')
-    outfilename = os.path.join(startdir,'fused', 'uniqueStructure.tcx')
+    phonefilename = os.path.join(startdir,'samplefiles','phone', 'activity_704970907.tcx')
+    hrmonfilename = os.path.join(startdir,'samplefiles','vivofit', 'activity_704996112.tcx')
+    outfilename = os.path.join(startdir,'fused.tcx')
 
     tree = etree.parse(phonefilename)
     root = tree.getroot()

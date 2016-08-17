@@ -1,0 +1,7 @@
+Flask
+matplotlib
+numpy
+pandas
+lxml
+nose
+sphinx
