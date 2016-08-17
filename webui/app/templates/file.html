@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    <p>{{ folder }}</p>
-    <p>{{ filenamewohr }}</p>
-    <p>{{ filenamewhr }}</p>
-
-    <p><a href="{{ filenamewohr }}">{{ filenamewohr }}</a></p>
-    <p><a href="{{ filenamewhr  }}">{{ filenamewhr  }}</a></p>
-    <hr>
+    {% if scroll %}
+    <script>
+        document.getElementById('{{ scroll }}').scrollIntoView();
+    </script>
+    {% endif %}
+    <h2 class="section-heading">Results!</h2>
+    <hr class="primary">
+    <!-- <p>{{ folder }}</p> -->
+    <p>File needing heart rate: {{ filenamewohr }}</p>
+    <p>File having heart rate: {{ filenamewhr }}</p>
+    <!-- <p><a href="{{ filenamewohr }}">{{ filenamewohr }}</a></p> -->
+    <!-- <p><a href="{{ filenamewhr  }}">{{ filenamewhr  }}</a></p> -->
 {% endblock %}
