@@ -1,20 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-"""
-Docs used:
-- http://lxml.de/tutorial.html#namespaces
-- http://stackoverflow.com/questions/1786476/parsing-xml-in-python-using-elementtree-example
-- https://docs.python.org/3/library/xml.etree.elementtree.html
-- http://pandas.pydata.org/pandas-docs/version/0.15.0/generated/pandas.Series.interpolate.html?highlight=interpolate#pandas.Series.interpolate
-- http://stackoverflow.com/questions/30530001/python-pandas-time-series-interpolation-and-regularization
-- http://pandas.pydata.org/pandas-docs/stable/missing_data.html
 
-@author: David
-"""
-__appname__ = "parseTCX"
+__appname__ = "fusefit"
 __author__  = "David Bradway (dpb6 @ duke)"
-__version__ = "0.0pre0"
-__license__ = "GNU GPL 3.0 or later"
+__version__ = "1"
+__license__ = "MIT"
 
 import os, sys, math
 from datetime import datetime
@@ -30,7 +20,7 @@ except ImportError:
 
 
 def parseLaps(roothr, XHTML_NAMESPACE):
-    # Initialize Time Series 
+    # Initialize Time Series
     averageHeartRateBpm_value = []
     maximumHeartRateBpm_value = []
     for Lap in roothr.iterfind(".//{{{}}}Lap".format(XHTML_NAMESPACE)): # 3.1+ only
@@ -47,14 +37,14 @@ def parseLaps(roothr, XHTML_NAMESPACE):
 
 
 def parseTimes(root, XHTML_NAMESPACE):
-    # Initialize Time Series 
+    # Initialize Time Series
     nohrdict = {}
     for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
         time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
         timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
         nohrdict[timedatetime] = np.nan
-    return nohrdict 
-    
+    return nohrdict
+
 
 def parseHRs(roothr, hrSeries, XHTML_NAMESPACE):
     # Update and add HR timepoints
@@ -83,21 +73,16 @@ def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE):
 
 
 def main():
-    print('Python version {}.{}.{}'.format(*sys.version_info))
-    print(sys.platform)
-    print(os.name)
-    print(os.getcwd())
 
-    try:
-        # python 3
-        import tkinter as tk
-        #from tkinter import filedialog
-        print("running tkinter")
-        root = tk.Tk()
-        root.withdraw()
+    # try:
+        # import tkinter as tk
+        # from tkinter import filedialog
+        # print("running tkinter")
+        # root = tk.Tk()
+        # root.withdraw()
         # filename = tk.filedialog.askopenfilename()
-    except ImportError:
-        print("Failed to import tkinter, requires Python3")
+    # except ImportError:
+        # print("Failed to import tkinter, requires Python3")
 
     XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 
@@ -105,7 +90,7 @@ def main():
 
     phonefilename = os.path.join(startdir,'samplefiles','phone', 'activity_704970907.tcx')
     hrmonfilename = os.path.join(startdir,'samplefiles','vivofit', 'activity_704996112.tcx')
-    outfilename = os.path.join(startdir,'fused.tcx')
+    outfilename = os.path.join(startdir,'samplefiles','fused.tcx')
 
     tree = etree.parse(phonefilename)
     root = tree.getroot()
@@ -132,9 +117,9 @@ def main():
     averageHeartRateBpm_value = result['averageHeartRateBpm_value']
     maximumHeartRateBpm_value = result['maximumHeartRateBpm_value']
     # TODO: Need to use the Above values!
-    
+
     nohrdict = parseTimes(root, XHTML_NAMESPACE)
-  
+
     # Make a Pandas Series from the Dict
     hrSeries = pd.Series(nohrdict)
 
@@ -142,8 +127,8 @@ def main():
 
     hrSeries.sort_index(inplace=True)
     hrSeries = hrSeries.interpolate(method='time')
-    hrSeries.plot()
+    # hrSeries.plot()
 
     appendHRs(tree, root, hrSeries, outfilename, XHTML_NAMESPACE)
-        
+
 if __name__ == "__main__": main()
