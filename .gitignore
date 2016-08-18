@@ -1,11 +1,11 @@
-webui/flask/lib64
-webui/flask/Include
-webui/flask/Lib
-webui/flask/Scripts
-webui/flask/pip-selfcheck.json
-webui/flask/pyvenv.cfg
+flask/lib64
+flask/Include
+flask/Lib
+flask/Scripts
+flask/pip-selfcheck.json
+flask/pyvenv.cfg
 
-webui/tmp/*.tcx
+tmp/*.tcx
 
 *.py[co]
 *.DS_*
