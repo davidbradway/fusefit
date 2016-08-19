@@ -72,11 +72,11 @@ def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE, dump=False):
     tree.write(outfilename)
 
 
-def mergeUploaded(folder,filename):
+def mergeUploaded(folder,filenames):
     XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 
-    filewohr = os.path.join(folder,filename[0])
-    filewhr = os.path.join(folder,filename[1])
+    filewohr = os.path.join(folder,filenames[0])
+    filewhr = os.path.join(folder,filenames[1])
     outfilename = os.path.join(folder,'fused.tcx')
 
     tree = etree.parse(filewohr)

@@ -20,13 +20,13 @@ def allowed_file(filename):
 def index():
     if request.method == 'POST':
         # check if the post request has the file part
-        filename = []
-        for upfile in ['filewohr','filewhr']:
-            if upfile not in request.files:
+        filenames = []
+        for uploadedfile in ['filewohr','filewhr']:
+            if uploadedfile not in request.files:
                 flash('No file part')
                 return redirect(request.url)
             # Get the name of the uploaded file
-            file = request.files[upfile]
+            file = request.files[uploadedfile]
             # if user does not select file, browser also
             # submits a empty part without filename
             if file.filename == '':
@@ -35,18 +35,16 @@ def index():
             # Check if the file is one of the allowed types/extensions
             if file and allowed_file(file.filename):
                 # Make the filename safe, remove unsupported chars
-                filename.append(secure_filename(file.filename))
+                filenames.append(secure_filename(file.filename))
                 # Move the file form the temporary folder to the upload folder
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename[-1]))
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filenames[-1]))
             else:
                 flash('Not allowed file')
                 return redirect(request.url)
-        outfilename = []
-        outfilename = fusefit.mergeUploaded(app.config['UPLOAD_FOLDER'],filename)
+        outfilename = fusefit.mergeUploaded(app.config['UPLOAD_FOLDER'],filenames)
 
         # Render the file template
         return render_template('file.html',
-            folder = app.config['UPLOAD_FOLDER'],
             outfilename = outfilename,
             scroll = 'results')
     return render_template('index.html')
