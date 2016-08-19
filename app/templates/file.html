@@ -4,11 +4,8 @@
                     {% endif %}
                     <h2 class="section-heading" id="results">Results!</h2>
                     <hr class="primary">
-                    <!-- <p>{{ folder }}</p> -->
-                    <p>File needing heart rate: {{ filenamewohr }}</p>
-                    <p>File having heart rate: {{ filenamewhr }}</p>
-                    <!-- <p><a href="{{ filenamewohr }}">{{ filenamewohr }}</a></p> -->
-                    <!-- <p><a href="{{ filenamewhr  }}">{{ filenamewhr  }}</a></p> -->
+                    <p>File with merged heart rate: </p>
+                    <p><a href="{{ folder }}/{{ outfilename }}">{{ outfilename }}</a></p>
                     <script>
                         document.getElementById('{{ scroll }}').scrollIntoView(true);
                     </script>

@@ -67,10 +67,34 @@ def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE):
             heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
             value = etree.SubElement(heartRateBpm,'Value')
             value.text = str(temp)
-
     #etree.dump(root)
-    tree.write(outfilename)
+    #tree.write(outfilename)
 
+
+def mergeUploaded(folder,filename):
+    XHTML_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+
+    filewohr = os.path.join(folder,filename[0])
+    filewhr = os.path.join(folder,filename[1])
+    outfilename = os.path.join(folder,'fused.tcx')
+
+    tree = etree.parse(filewohr)
+    root = tree.getroot()
+
+    treehr = etree.parse(filewhr)
+    roothr = treehr.getroot()
+
+    result = parseLaps(roothr, XHTML_NAMESPACE)
+    averageHeartRateBpm_value = result['averageHeartRateBpm_value']
+    maximumHeartRateBpm_value = result['maximumHeartRateBpm_value']
+    # TODO: Need to use the Above values!
+
+    # Make a Pandas Series from the Dict
+    hrSeries = parseHRs(roothr, pd.Series(parseTimes(root, XHTML_NAMESPACE)), XHTML_NAMESPACE)
+    hrSeries.sort_index(inplace=True)
+    hrSeries = hrSeries.interpolate(method='time')
+
+    appendHRs(tree, root, hrSeries, outfilename, XHTML_NAMESPACE)
 
 def main():
 

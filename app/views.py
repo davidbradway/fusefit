@@ -7,6 +7,7 @@ import os
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from app import app
 from werkzeug.utils import secure_filename
+import fusefit
 
 # For a given file, return whether it's an allowed type or not
 def allowed_file(filename):
@@ -40,10 +41,12 @@ def index():
             else:
                 flash('Not allowed file')
                 return redirect(request.url)
+        outfilename = []
+        outfilename = fusefit.mergeUploaded(app.config['UPLOAD_FOLDER'],filename)
+
         # Render the file template
         return render_template('file.html',
             folder = app.config['UPLOAD_FOLDER'],
-            filenamewohr = filename[0],
-            filenamewhr = filename[1],
+            outfilename = outfilename,
             scroll = 'results')
     return render_template('index.html')
