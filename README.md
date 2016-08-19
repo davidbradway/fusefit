@@ -17,7 +17,7 @@ Docs used:
 
 `python -m venv flask`
 
-In Windows: `flask\Scripts\pip install flask`
+In Windows: `flask\Scripts\pip install flask matplotlib numpy pandas lxml`
 
 Virtual environments can be activated and deactivated, if desired. An activated environment adds the location of its bin folder to the system path, so that for example, when you type python you get the environment's version and not the system's one. But activating a virtual environment is not necessary, it is equally effective to invoke the interpreter by specifying its pathname.
 
