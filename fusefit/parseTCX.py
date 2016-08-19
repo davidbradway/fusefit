@@ -58,7 +58,7 @@ def parseHRs(roothr, hrSeries, XHTML_NAMESPACE):
     return hrSeries
 
 
-def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE):
+def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE, dump=False):
     for Trackpoint in root.iterfind(".//{{{}}}Trackpoint".format(XHTML_NAMESPACE)): # 3.1+ only
         time = Trackpoint.find(".//{{{}}}Time".format(XHTML_NAMESPACE)) # 3.1+ only
         timedatetime = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.000Z')
@@ -67,8 +67,9 @@ def appendHRs(tree,root, hrSeries, outfilename, XHTML_NAMESPACE):
             heartRateBpm = etree.SubElement(Trackpoint,'HeartRateBpm')
             value = etree.SubElement(heartRateBpm,'Value')
             value.text = str(temp)
-    #etree.dump(root)
-    #tree.write(outfilename)
+    if dump:
+        etree.dump(root)
+    tree.write(outfilename)
 
 
 def mergeUploaded(folder,filename):
